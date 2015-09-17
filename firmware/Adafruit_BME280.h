@@ -22,7 +22,7 @@
 
 #include "application.h"
 
-#include <Adafruit_Sensor.h>
+#include "Adafruit_Sensor.h"
 
 /*=========================================================================
     I2C ADDRESS/BITS
