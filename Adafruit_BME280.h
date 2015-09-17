@@ -13,24 +13,16 @@
 
   Written by Limor Fried & Kevin Townsend for Adafruit Industries.
   BSD license, all text above must be included in any redistribution
+
+  This file was modified by Markus Haack (https://github.com/mhaack)
+  in order to work with Particle Photon & Core.
  ***************************************************************************/
 #ifndef __BME280_H__
 #define __BME280_H__
 
-#if (ARDUINO >= 100)
- #include "Arduino.h"
-#else
- #include "WProgram.h"
-#endif
+#include "application.h"
 
 #include <Adafruit_Sensor.h>
-
-#ifdef __AVR_ATtiny85__
- #include "TinyWireM.h"
- #define Wire TinyWireM
-#else
- #include <Wire.h>
-#endif
 
 /*=========================================================================
     I2C ADDRESS/BITS

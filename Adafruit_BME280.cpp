@@ -13,10 +13,12 @@
 
   Written by Limor Fried & Kevin Townsend for Adafruit Industries.
   BSD license, all text above must be included in any redistribution
+
+  This file was modified by Markus Haack (https://github.com/mhaack)
+  in order to work with Particle Photon & Core.
  ***************************************************************************/
-#include "Arduino.h"
-#include <Wire.h>
-#include <SPI.h>
+#include "application.h"
+#include "math.h"
 #include "Adafruit_BME280.h"
 
 static bme280_calib_data bme280_calib;
@@ -100,14 +102,21 @@ void Adafruit_BME280::write8(byte reg, byte value)
     Wire.write((uint8_t)value);
     Wire.endTransmission();
   } else {
-    if (_sck == -1)
-      SPI.beginTransaction(SPISettings(500000, MSBFIRST, SPI_MODE0));
+    if (_sck == -1) {
+      SPI.begin();
+      SPI.setClockDivider(SPI_CLOCK_DIV64);
+      SPI.setBitOrder(MSBFIRST);
+      SPI.setDataMode(SPI_MODE0);
+      //SPI.beginTransaction(SPISettings(500000, MSBFIRST, SPI_MODE0));
+    }
     digitalWrite(_cs, LOW);
     spixfer(reg & ~0x80); // write, bit 7 low
     spixfer(value);
     digitalWrite(_cs, HIGH);
-    if (_sck == -1)
-      SPI.endTransaction();              // release the SPI bus
+    if (_sck == -1) {
+      SPI.end();
+      // SPI.endTransaction();              // release the SPI bus
+    }
   }
 }
 
@@ -128,14 +137,21 @@ uint8_t Adafruit_BME280::read8(byte reg)
     value = Wire.read();
     Wire.endTransmission();
   } else {
-    if (_sck == -1)
-      SPI.beginTransaction(SPISettings(500000, MSBFIRST, SPI_MODE0));
+    if (_sck == -1) {
+      SPI.begin();
+      SPI.setClockDivider(SPI_CLOCK_DIV64);
+      SPI.setBitOrder(MSBFIRST);
+      SPI.setDataMode(SPI_MODE0);
+      // SPI.beginTransaction(SPISettings(500000, MSBFIRST, SPI_MODE0));
+    }
     digitalWrite(_cs, LOW);
     spixfer(reg | 0x80); // read, bit 7 high
     value = spixfer(0);
     digitalWrite(_cs, HIGH);
-    if (_sck == -1)
-      SPI.endTransaction();              // release the SPI bus
+    if (_sck == -1) {
+      SPI.end();
+      // SPI.endTransaction();              // release the SPI bus
+    }
   }
   return value;
 }
@@ -157,14 +173,21 @@ uint16_t Adafruit_BME280::read16(byte reg)
     value = (Wire.read() << 8) | Wire.read();
     Wire.endTransmission();
   } else {
-    if (_sck == -1)
-      SPI.beginTransaction(SPISettings(500000, MSBFIRST, SPI_MODE0));
+    if (_sck == -1) {
+      SPI.begin();
+      SPI.setClockDivider(SPI_CLOCK_DIV64);
+      SPI.setBitOrder(MSBFIRST);
+      SPI.setDataMode(SPI_MODE0);
+      // SPI.beginTransaction(SPISettings(500000, MSBFIRST, SPI_MODE0));
+    }
     digitalWrite(_cs, LOW);
     spixfer(reg | 0x80); // read, bit 7 high
     value = (spixfer(0) << 8) | spixfer(0);
     digitalWrite(_cs, HIGH);
-    if (_sck == -1)
-      SPI.endTransaction();              // release the SPI bus
+    if (_sck == -1) {
+      SPI.end();
+      // SPI.endTransaction();              // release the SPI bus
+    }
   }
 
   return value;

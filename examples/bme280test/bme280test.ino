@@ -13,17 +13,18 @@
 
   Written by Limor Fried & Kevin Townsend for Adafruit Industries.
   BSD license, all text above must be included in any redistribution
+
+  This file was modified by Markus Haack (https://github.com/mhaack)
+  in order to work with Particle Photon & Core.
  ***************************************************************************/
 
-#include <Wire.h>
-#include <SPI.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
 
-#define BME_SCK 13
-#define BME_MISO 12
-#define BME_MOSI 11
-#define BME_CS 10
+#define BME_SCK D4
+#define BME_MISO D3
+#define BME_MOSI D2
+#define BME_CS D5
 
 #define SEALEVELPRESSURE_HPA (1013.25)
 
