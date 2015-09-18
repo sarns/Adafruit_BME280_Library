@@ -1,5 +1,5 @@
 {
-    "name": "Adafruit_BME280",
+    "name": "Adafruit_BME280_Library",
     "version": "1.0.0",
     "author": "Adafruit <info@adafruit.com>, Markus Haack (https://github.com/mhaack)",
     "license": "BSD license",
