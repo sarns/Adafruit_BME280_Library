@@ -67,6 +67,7 @@ bool Adafruit_BME280::begin(uint8_t a) {
   readCoefficients();
 
   //Set before CONTROL_meas (DS 5.4.3)
+  write8(BME280_REGISTER_CONTROLHUMID, 0x05); //16x oversampling
 
   write8(BME280_REGISTER_CONTROL, 0xB7); // 16x ovesampling, normal mode
   return true;
@@ -233,11 +234,34 @@ uint32_t Adafruit_BME280::read24(byte reg)
     Wire.write((uint8_t)reg);
     Wire.endTransmission();
     Wire.requestFrom((uint8_t)_i2caddr, (byte)3);
+
     value = Wire.read();
     value <<= 8;
     value |= Wire.read();
     value <<= 8;
     value |= Wire.read();
+    
+    Wire.endTransmission();
+  } else {
+    if (_sck == -1)
+      SPI.beginTransaction(SPISettings(500000, MSBFIRST, SPI_MODE0));
+    digitalWrite(_cs, LOW);
+    spixfer(reg | 0x80); // read, bit 7 high
+
+    value = spixfer(0);
+    value <<= 8;
+    value |= spixfer(0);
+    value <<= 8;
+    value |= spixfer(0);
+
+    digitalWrite(_cs, HIGH);
+    if (_sck == -1)
+      SPI.endTransaction();              // release the SPI bus
+  }
+
+  return value;
+}
+
 
 /**************************************************************************/
 /*!
@@ -277,6 +301,7 @@ float Adafruit_BME280::readTemperature(void)
 {
   int32_t var1, var2;
 
+  int32_t adc_T = read24(BME280_REGISTER_TEMPDATA);
   adc_T >>= 4;
 
   var1  = ((((adc_T>>3) - ((int32_t)_bme280_calib.dig_T1 <<1))) *
@@ -300,6 +325,9 @@ float Adafruit_BME280::readTemperature(void)
 float Adafruit_BME280::readPressure(void) {
   int64_t var1, var2, p;
 
+  readTemperature(); // must be done first to get t_fine
+
+  int32_t adc_P = read24(BME280_REGISTER_PRESSUREDATA);
   adc_P >>= 4;
 
   var1 = ((int64_t)t_fine) - 128000;
@@ -329,6 +357,8 @@ float Adafruit_BME280::readPressure(void) {
 */
 /**************************************************************************/
 float Adafruit_BME280::readHumidity(void) {
+
+  readTemperature(); // must be done first to get t_fine
 
   int32_t adc_H = read16(BME280_REGISTER_HUMIDDATA);
 
